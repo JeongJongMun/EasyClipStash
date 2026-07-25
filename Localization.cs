@@ -95,6 +95,13 @@ public static class L
     public static string TabText => Ko ? "텍스트" : "Text";
     public static string MarkdownSection => Ko ? "마크다운" : "Markdown";
 
+    // ── 알림 ──
+    public static string NotificationSection => Ko ? "알림" : "Notification";
+    public static string NotificationPositionLabel => Ko ? "표시 위치" : "Position";
+    public static string NotificationPreview => Ko ? "미리보기" : "Preview";
+    public static string NotificationPreviewBody
+        => Ko ? "알림이 이 위치에 표시됩니다." : "Notifications will appear here.";
+
     // ── 업데이트 ──
     public static string UpdateSection => Ko ? "업데이트" : "Update";
     public static string CurrentVersionLabel => Ko ? "현재 버전" : "Current version";

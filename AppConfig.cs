@@ -13,6 +13,7 @@ public class AppConfig
     public string MarkdownTemplate { get; set; } = "![]({url})";
     public Lang Language { get; set; } = L.Default;
     public bool CheckUpdateOnStartup { get; set; } = true;
+    public ToastPosition NotificationPosition { get; set; } = ToastPosition.BottomRight;
 
     // ── 파일 이름 규칙 (이미지·텍스트 각각 독립) ──
     public NamingConfig ImageNaming { get; set; } = new();

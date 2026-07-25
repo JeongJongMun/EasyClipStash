@@ -20,6 +20,9 @@ public static class Theme
     /// <summary>보조 설명용 흐린 글자.</summary>
     public static readonly Color Muted = Blend(Accent, Background, 0.62);
 
+    /// <summary>마우스를 올렸을 때의 옅은 강조.</summary>
+    public static readonly Color Hover = Blend(Accent, Background, 0.15);
+
     /// <summary>役할 태그. Tag에 넣으면 <see cref="Apply"/>가 알아본다.</summary>
     public const string Muted_ = "muted";
     public const string Rule = "rule";

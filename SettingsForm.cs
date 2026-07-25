@@ -43,6 +43,13 @@ public sealed class SettingsForm : Form
     private readonly Label _textExtLabel = FieldLabel();
     private readonly Label _urlPrefixLabel = FieldLabel();
     private readonly Label _templateLabel = FieldLabel();
+    // 알림 위치 (3x3 아홉 방향)
+    private readonly Label _notificationSectionLabel = SectionLabel();
+    private readonly Label _notificationPositionLabel = FieldLabel();
+    private readonly Button[] _positionButtons = new Button[9];
+    private readonly Button _previewToastButton = new() { AutoSize = true, Padding = new Padding(10, 2, 10, 2), Margin = new Padding(12, 3, 3, 3) };
+    private ToastPosition _selectedPosition = ToastPosition.BottomRight;
+
     // 업데이트
     private readonly Label _updateSectionLabel = SectionLabel();
     private readonly Label _currentVersionLabel = FieldLabel();
@@ -78,9 +85,12 @@ public sealed class SettingsForm : Form
         MaximizeBox = false;
         MinimizeBox = false;
         StartPosition = FormStartPosition.CenterScreen;
-        ClientSize = new Size(740, 460);   // 페이지 전환 시 창 크기가 흔들리지 않도록 고정
+        // 페이지 전환 시 창 크기가 흔들리지 않도록 고정.
+        // 높이는 가장 내용이 많은 [기본] 페이지(알림 위치 선택 포함)가 스크롤 없이 들어가게 잡는다.
+        ClientSize = new Size(740, 520);
 
         _languageCombo.Items.AddRange(new object[] { L.DisplayName(Lang.Korean), L.DisplayName(Lang.English) });
+        CreatePositionButtons();   // LoadFromConfig가 이 버튼들을 칠하므로 먼저 만든다
 
         LoadFromConfig(current);
 
@@ -131,6 +141,9 @@ public sealed class SettingsForm : Form
             Row(_languageLabel, _languageCombo),
             Row(_hotkeyLabel, _hotkeyBox),
             _hotkeyHintLabel,
+            HorizontalRule(),
+            _notificationSectionLabel,
+            BuildPositionPicker(),
             HorizontalRule(),
             _updateSectionLabel,
             Row(_currentVersionLabel, _currentVersionValue),
@@ -241,6 +254,79 @@ public sealed class SettingsForm : Form
         Controls.Add(root);
     }
 
+    /// <summary>
+    /// 위치 선택 버튼 9개를 만든다.
+    /// 설정을 불러올 때(LoadFromConfig) 이미 존재해야 하므로 레이아웃 구성보다 먼저 호출한다.
+    /// </summary>
+    private void CreatePositionButtons()
+    {
+        for (int i = 0; i < _positionButtons.Length; i++)
+        {
+            int index = i;
+            var b = new Button
+            {
+                Width = 34,
+                Height = 24,
+                Tag = Theme.Nav,
+                Margin = new Padding(2),
+                Cursor = Cursors.Hand,
+            };
+            b.Click += (_, _) => SelectPosition((ToastPosition)index);
+            _positionButtons[i] = b;
+        }
+    }
+
+    /// <summary>
+    /// 알림이 뜰 화면 위치를 고르는 3x3 격자.
+    /// 아홉 개를 목록으로 늘어놓는 것보다 화면 배치를 그대로 보여주는 편이 고르기 쉽다.
+    /// </summary>
+    private Control BuildPositionPicker()
+    {
+        var grid = new TableLayoutPanel
+        {
+            ColumnCount = 3,
+            RowCount = 3,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            Margin = new Padding(0, 3, 3, 3),
+        };
+
+        for (int i = 0; i < _positionButtons.Length; i++)
+            grid.Controls.Add(_positionButtons[i], i % 3, i / 3);
+
+        var row = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
+        row.Controls.Add(_notificationPositionLabel);
+        row.Controls.Add(grid);
+        row.Controls.Add(_previewToastButton);
+
+        _previewToastButton.Click += (_, _) => ToastWindow.Show(
+            "EasyClipStash", L.NotificationPreviewBody, ToastKind.Info, _selectedPosition, 2000);
+
+        return row;
+    }
+
+    /// <summary>선택한 방향만 강조한다.</summary>
+    private void SelectPosition(ToastPosition position)
+    {
+        _selectedPosition = position;
+        for (int i = 0; i < _positionButtons.Length; i++)
+            StylePositionButton(_positionButtons[i], i == (int)position);
+    }
+
+    /// <summary>
+    /// 위치 선택 칸의 색.
+    /// 사이드바용 StyleNavButton은 테두리가 없어 빈 칸이 배경에 묻히므로 따로 칠한다.
+    /// </summary>
+    private static void StylePositionButton(Button b, bool selected)
+    {
+        b.FlatStyle = FlatStyle.Flat;
+        b.UseVisualStyleBackColor = false;
+        b.BackColor = selected ? Theme.Accent : Theme.Background;
+        b.FlatAppearance.BorderSize = 1;
+        b.FlatAppearance.BorderColor = selected ? Theme.Accent : Theme.Line;
+        b.FlatAppearance.MouseOverBackColor = selected ? Theme.Accent : Theme.Hover;
+    }
+
     /// <summary>제목 + 내용으로 구성된 카테고리 페이지 하나를 만든다.</summary>
     private Panel Page(int index, Control body)
     {
@@ -348,6 +434,7 @@ public sealed class SettingsForm : Form
 
         _imageNaming.LoadFrom(cfg.ImageNaming);
         _textNaming.LoadFrom(cfg.TextNaming);
+        SelectPosition(cfg.NotificationPosition);
         UpdateMarkdownEnabled();
     }
 
@@ -396,6 +483,9 @@ public sealed class SettingsForm : Form
         _hotkeyLabel.Text = L.HotkeyLabel;
         _hotkeyHintLabel.Text = L.HotkeyHint;
         _markdownSectionLabel.Text = L.MarkdownSection;
+        _notificationSectionLabel.Text = L.NotificationSection;
+        _notificationPositionLabel.Text = L.NotificationPositionLabel;
+        _previewToastButton.Text = L.NotificationPreview;
         _updateSectionLabel.Text = L.UpdateSection;
         _currentVersionLabel.Text = L.CurrentVersionLabel;
         _currentVersionValue.Text = Updater.CurrentVersion.ToString();
@@ -454,6 +544,7 @@ public sealed class SettingsForm : Form
         Hotkey = _hotkeyBox.Text,
         Language = SelectedLanguage,
         CheckUpdateOnStartup = _autoCheckUpdateCheck.Checked,
+        NotificationPosition = _selectedPosition,
         CopyMarkdownToClipboard = _copyMarkdownCheck.Checked,
         MarkdownUrlPrefix = _urlPrefixBox.Text.Trim(),
         MarkdownTemplate = _templateBox.Text,

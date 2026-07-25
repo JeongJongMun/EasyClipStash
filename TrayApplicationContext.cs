@@ -9,7 +9,6 @@ public sealed class TrayApplicationContext : ApplicationContext
     private AppConfig _config;
     private string? _lastSavedPath;
     private SettingsForm? _settingsForm;
-    private Action? _balloonClickAction;
 
     private readonly ToolStripMenuItem _saveItem;
     private readonly ToolStripMenuItem _openLastItem;
@@ -68,8 +67,6 @@ public sealed class TrayApplicationContext : ApplicationContext
             Visible = true,
         };
         _trayIcon.DoubleClick += (_, _) => OpenSettings();
-        _trayIcon.BalloonTipClicked += (_, _) => RunBalloonAction();
-        _trayIcon.BalloonTipClosed += (_, _) => _balloonClickAction = null;   // 사라진 알림의 동작이 남지 않게
 
         _hotkeys.HotkeyPressed += SaveClipboard;
         ApplyConfig();
@@ -189,22 +186,20 @@ public sealed class TrayApplicationContext : ApplicationContext
     }
 
     /// <summary>
-    /// 트레이 알림을 띄운다. onClick을 주면 사용자가 알림을 눌렀을 때 그 동작이 실행된다.
-    /// (알림마다 의미가 달라서 클릭 동작을 함께 넘기는 방식으로 둔다)
+    /// 알림을 띄운다. onClick을 주면 사용자가 알림을 눌렀을 때 그 동작이 실행된다.
+    ///
+    /// 윈도우 토스트 대신 자체 창을 쓴다. 토스트는 시스템 전체에서 하나씩만 표시되어
+    /// 캡처 도구 알림 뒤에 몇 초씩 밀리는데, 이 앱은 캡처 직후 저장이 주 흐름이라 매번 걸린다.
     /// </summary>
     private void Notify(string title, string message, ToolTipIcon icon, Action? onClick = null)
     {
-        _balloonClickAction = onClick;
-        _trayIcon.ShowBalloonTip(3000, title, message, icon);
-    }
-
-    /// <summary>알림 클릭 동작을 실행한다. 실패해도 앱이 죽지 않게 감싼다.</summary>
-    private void RunBalloonAction()
-    {
-        var action = _balloonClickAction;
-        _balloonClickAction = null;
-        try { action?.Invoke(); }
-        catch { /* 폴더가 사라진 경우 등 — 클릭 반응이 없을 뿐 앱에는 영향 없다 */ }
+        var kind = icon switch
+        {
+            ToolTipIcon.Error => ToastKind.Error,
+            ToolTipIcon.Warning => ToastKind.Warning,
+            _ => ToastKind.Info,
+        };
+        ToastWindow.Show(title, message, kind, _config.NotificationPosition, 3000, onClick);
     }
 
     /// <summary>탐색기에서 해당 파일을 선택한 채로 폴더를 연다. 파일이 없으면 폴더만 연다.</summary>
@@ -223,6 +218,7 @@ public sealed class TrayApplicationContext : ApplicationContext
 
     protected override void ExitThreadCore()
     {
+        ToastWindow.CloseCurrent();
         _trayIcon.Visible = false;
         _trayIcon.Dispose();
         _hotkeys.Dispose();
