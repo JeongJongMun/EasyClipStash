@@ -58,6 +58,8 @@ The app has no main window; it lives in the system tray.
 
 The settings window is split into four sections.
 
+![Settings window](assets/settings.png)
+
 | Section | Contents |
 |---|---|
 | General | Language, hotkey, updates |
