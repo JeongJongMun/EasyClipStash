@@ -2,6 +2,8 @@
 
 **English** | [한국어](README.ko.md)
 
+[![CI](https://github.com/JeongJongMun/EasyClipStash/actions/workflows/ci.yml/badge.svg)](https://github.com/JeongJongMun/EasyClipStash/actions/workflows/ci.yml)
+
 A Windows tray app that saves whatever is on your clipboard — an image or text — to the folder you choose, with a single hotkey.
 
 ![How EasyClipStash works](assets/flow.png)

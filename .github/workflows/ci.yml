@@ -1,0 +1,38 @@
+name: CI
+
+# main 브랜치와 PR에서 빌드가 깨지지 않았는지 검증한다.
+# 문서·이미지만 바뀐 경우는 빌드할 이유가 없어 건너뛴다.
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md', 'assets/**', 'LICENSE']
+  pull_request:
+    branches: [main]
+    paths-ignore: ['**.md', 'assets/**', 'LICENSE']
+
+# 같은 브랜치/PR에 새 커밋이 오면 진행 중인 실행을 취소한다
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest   # WinForms 빌드는 Windows 러너에서만 가능
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build
+        run: dotnet build EasyClipStash.csproj -c Release
+
+      # 릴리스가 쓰는 단일 파일 패키징이 깨지지 않았는지도 확인한다.
+      # 일반 빌드가 통과해도 단일 파일 배포는 따로 실패할 수 있어 미리 잡는다.
+      - name: Verify single-file publish
+        run: >
+          dotnet publish EasyClipStash.csproj -c Release -r win-x64
+          --self-contained true -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true -o publish

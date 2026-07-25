@@ -2,6 +2,8 @@
 
 [English](README.md) | **한국어**
 
+[![CI](https://github.com/JeongJongMun/EasyClipStash/actions/workflows/ci.yml/badge.svg)](https://github.com/JeongJongMun/EasyClipStash/actions/workflows/ci.yml)
+
 클립보드에 있는 이미지나 텍스트를 단축키 한 번으로 원하는 폴더에 저장하는 윈도우 트레이 앱입니다.
 
 ![EasyClipStash 동작 방식](assets/flow.ko.png)
