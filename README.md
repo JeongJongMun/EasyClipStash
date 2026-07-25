@@ -4,6 +4,8 @@
 
 A Windows tray app that saves whatever is on your clipboard — an image or text — to the folder you choose, with a single hotkey.
 
+![How EasyClipStash works](assets/flow.png)
+
 ## Why I built this
 
 Every time I wrote a post for my GitHub blog, I went through the same routine: capture the screen, open Paint, paste, navigate to the right folder, and type a filename that continued the numbering. With several images in one post, the numbering would get out of order.
