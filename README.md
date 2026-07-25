@@ -116,6 +116,10 @@ Pushing a tag makes GitHub Actions build and publish the release automatically.
 git tag v1.0.0 && git push origin v1.0.0
 ```
 
+## Contributing
+
+Bug reports, ideas, and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development setup and conventions — and please check [what this tool does not do](#what-this-tool-does-not-do) before proposing a feature.
+
 ## License
 
 [MIT](LICENSE)

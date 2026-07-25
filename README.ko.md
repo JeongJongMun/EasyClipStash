@@ -116,6 +116,10 @@ dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=
 git tag v1.0.0 && git push origin v1.0.0
 ```
 
+## 기여
+
+버그 신고, 아이디어, 풀 리퀘스트 모두 환영합니다. 개발 환경과 규칙은 [CONTRIBUTING.ko.md](CONTRIBUTING.ko.md)를 참고해주세요. 기능을 제안하기 전에 [이 도구가 하지 않는 것](#이-도구가-하지-않는-것)을 먼저 확인해주시면 좋습니다.
+
 ## 라이선스
 
 [MIT](LICENSE)
