@@ -1,0 +1,23 @@
+name: Feature request
+description: Suggest an idea
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: Feel free to write in English or Korean. / 한국어로 작성해도 됩니다.
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+      description: The problem you are running into, and what would help.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: I read [what this tool does not do](https://github.com/JeongJongMun/EasyClipStash#what-this-tool-does-not-do)
+          required: true
