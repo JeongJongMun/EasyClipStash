@@ -60,7 +60,7 @@ public static class L
     public static string GroupNaming => Ko ? "파일 이름" : "File name";
     public static string GroupImage => Ko ? "이미지 설정" : "Image";
     public static string GroupText => Ko ? "텍스트 설정" : "Text";
-    public static string SaveFolderLabel => Ko ? "이미지 저장 위치" : "Image save location";
+    public static string ImageSavePathLabel => Ko ? "이미지 저장 위치" : "Image save location";
     public static string HotkeyLabel => Ko ? "단축키" : "Hotkey";
     public static string HotkeyHint
         => Ko ? "칸을 클릭한 뒤 원하는 키 조합을 누르세요 (예: Ctrl+Alt+V)"
@@ -78,7 +78,7 @@ public static class L
     public static string TextFolderPickerDescription
         => Ko ? "텍스트를 저장할 폴더 선택" : "Choose a folder to save text";
     public static string SettingsDialogTitle => Ko ? "설정" : "Settings";
-    public static string EnterSaveFolder => Ko ? "이미지 저장 위치를 입력하세요." : "Please enter an image save location.";
+    public static string EnterImageSavePath => Ko ? "이미지 저장 위치를 입력하세요." : "Please enter an image save location.";
     public static string FolderNotExistConfirm(string path)
         => Ko ? $"폴더가 존재하지 않습니다:\n{path}\n\n그래도 저장할까요?"
               : $"The folder does not exist:\n{path}\n\nSave anyway?";
@@ -138,7 +138,7 @@ public static class L
         => Ko ? "내려받은 파일에서 실행 파일을 찾지 못했습니다." : "Executable not found in the downloaded package.";
 
     // ── 텍스트 저장 ──
-    public static string TextFolderLabel => Ko ? "텍스트 저장 위치" : "Text save location";
+    public static string TextSavePathLabel => Ko ? "텍스트 저장 위치" : "Text save location";
     public static string TextFolderHint
         => Ko ? "비워두면 이미지와 같은 폴더에 저장합니다." : "Leave blank to use the image save location.";
     public static string TextExtLabel => Ko ? "텍스트 확장자" : "Text extension";

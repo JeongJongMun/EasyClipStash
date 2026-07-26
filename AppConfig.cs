@@ -5,7 +5,7 @@ namespace EasyClipStash;
 
 public class AppConfig
 {
-    public string SavePath { get; set; } = KnownFolders.Downloads;
+    public string ImageSavePath { get; set; } = KnownFolders.Downloads;
     public ImageFormatKind ImageFormat { get; set; } = ImageFormatKind.Png;
     public string Hotkey { get; set; } = "Ctrl+Alt+V";
     public bool CopyMarkdownToClipboard { get; set; } = true;
@@ -20,12 +20,12 @@ public class AppConfig
     public NamingConfig TextNaming { get; set; } = new();
 
     // ── 텍스트 저장 ──
-    public string TextSavePath { get; set; } = KnownFolders.Downloads;  // 비우면 이미지와 같은 폴더(SavePath)
+    public string TextSavePath { get; set; } = KnownFolders.Downloads;  // 비우면 이미지와 같은 폴더(ImageSavePath)
     public TextExtension TextExtension { get; set; } = TextExtension.Txt;
 
     /// <summary>텍스트를 실제로 저장할 폴더. TextSavePath가 비어 있으면 이미지 폴더를 쓴다.</summary>
     [System.Text.Json.Serialization.JsonIgnore]
-    public string EffectiveTextFolder => string.IsNullOrWhiteSpace(TextSavePath) ? SavePath : TextSavePath;
+    public string EffectiveTextSavePath => string.IsNullOrWhiteSpace(TextSavePath) ? ImageSavePath : TextSavePath;
 
     public static string ConfigPath => Path.Combine(AppContext.BaseDirectory, "config.json");
 
@@ -50,7 +50,7 @@ public class AppConfig
                 var loaded = JsonSerializer.Deserialize<AppConfig>(json, JsonOptions);
                 if (loaded is not null)
                 {
-                    MigrateFlatNaming(loaded, json);
+                    Migrate(loaded, json);
                     return loaded;
                 }
             }
@@ -96,22 +96,48 @@ public class AppConfig
     }
 
     /// <summary>
-    /// 구버전 config(이름 규칙이 최상위에 평평하게 있던 형태)를 읽어 이미지·텍스트 규칙 양쪽에 적용한다.
-    /// ImageNaming/TextNaming이 이미 있으면 아무것도 하지 않는다.
+    /// 구버전 config를 현재 형식으로 옮긴다. 옮길 게 있었으면 새 형식으로 다시 저장한다.
+    /// 속성 이름이 곧 JSON 키라서, 이름을 바꿀 때마다 여기에 옛 키를 읽는 코드를 남겨야 한다.
     /// </summary>
-    private static void MigrateFlatNaming(AppConfig config, string json)
+    private static void Migrate(AppConfig config, string json)
     {
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
+        bool changed = MigrateFlatNaming(config, root) | MigrateSavePath(config, root);
+
+        if (changed)
+            config.Save();
+    }
+
+    /// <summary>
+    /// v1.1 이전: 이름 규칙이 최상위에 평평하게 있었다.
+    /// 이미지·텍스트 규칙 양쪽에 같은 값을 넣는다.
+    /// </summary>
+    private static bool MigrateFlatNaming(AppConfig config, JsonElement root)
+    {
         if (root.TryGetProperty(nameof(ImageNaming), out _) || !root.TryGetProperty("NamingMode", out _))
-            return;
+            return false;
 
         var legacy = JsonSerializer.Deserialize<NamingConfig>(root.GetRawText(), JsonOptions);
-        if (legacy is null) return;
+        if (legacy is null) return false;
 
         config.ImageNaming = legacy;
         config.TextNaming = JsonSerializer.Deserialize<NamingConfig>(JsonSerializer.Serialize(legacy, JsonOptions), JsonOptions)!;
-        config.Save(); // 새 형식으로 다시 기록
+        return true;
+    }
+
+    /// <summary>
+    /// v1.4 이전: 이미지 저장 경로가 "SavePath"였다(텍스트만 접두사가 붙어 비대칭이었다).
+    /// 지금은 ImageSavePath다.
+    /// </summary>
+    private static bool MigrateSavePath(AppConfig config, JsonElement root)
+    {
+        if (root.TryGetProperty(nameof(ImageSavePath), out _)) return false;
+        if (!root.TryGetProperty("SavePath", out var old)) return false;
+        if (old.GetString() is not { Length: > 0 } path) return false;
+
+        config.ImageSavePath = path;
+        return true;
     }
 
     /// <summary>저장된 파일 경로에 대응하는 블로그용 마크다운 태그를 만든다.</summary>

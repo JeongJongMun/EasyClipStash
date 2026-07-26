@@ -28,8 +28,8 @@ public sealed class TrayApplicationContext : ApplicationContext
         _saveItem.Font = new Font(_saveItem.Font, FontStyle.Bold);
 
         _openLastItem = new ToolStripMenuItem("", null, (_, _) => OpenLastFile()) { Enabled = false };
-        _openImageFolderItem = new ToolStripMenuItem("", null, (_, _) => OpenFolder(_config.SavePath));
-        _openTextFolderItem = new ToolStripMenuItem("", null, (_, _) => OpenFolder(_config.EffectiveTextFolder));
+        _openImageFolderItem = new ToolStripMenuItem("", null, (_, _) => OpenFolder(_config.ImageSavePath));
+        _openTextFolderItem = new ToolStripMenuItem("", null, (_, _) => OpenFolder(_config.EffectiveTextSavePath));
 
         _copyMarkdownItem = new ToolStripMenuItem("") { CheckOnClick = true, Checked = _config.CopyMarkdownToClipboard };
         _copyMarkdownItem.CheckedChanged += (_, _) =>

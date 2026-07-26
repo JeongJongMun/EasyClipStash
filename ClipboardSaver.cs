@@ -19,7 +19,7 @@ public static class ClipboardSaver
             using var image = Clipboard.GetImage();
             if (image is not null)
             {
-                string folder = config.SavePath;
+                string folder = config.ImageSavePath;
                 EnsureFolder(folder);
                 string path = FileNamer.BuildNext(config.ImageNaming, folder, FileNamer.Extension(config.ImageFormat), DateTime.Now);
                 SaveImage(image, path, config.ImageFormat);
@@ -32,7 +32,7 @@ public static class ClipboardSaver
             string text = Clipboard.GetText();
             if (!string.IsNullOrEmpty(text))
             {
-                string folder = config.EffectiveTextFolder;
+                string folder = config.EffectiveTextSavePath;
                 EnsureFolder(folder);
                 string path = FileNamer.BuildNext(config.TextNaming, folder, FileNamer.Extension(config.TextExtension), DateTime.Now);
                 File.WriteAllText(path, text); // .NET 기본 UTF-8(BOM 없음)

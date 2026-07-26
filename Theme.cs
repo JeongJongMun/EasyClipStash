@@ -24,7 +24,7 @@ public static class Theme
     public static readonly Color Hover = Blend(Accent, Background, 0.15);
 
     /// <summary>役할 태그. Tag에 넣으면 <see cref="Apply"/>가 알아본다.</summary>
-    public const string Muted_ = "muted";
+    public const string MutedTag = "muted";
     public const string Rule = "rule";
     public const string Nav = "nav";
     public const string Primary = "primary";
@@ -81,7 +81,7 @@ public static class Theme
 
             case Label label:
                 label.BackColor = Color.Transparent;
-                label.ForeColor = (string?)label.Tag == Muted_ ? Muted : Accent;
+                label.ForeColor = (string?)label.Tag == MutedTag ? Muted : Accent;
                 break;
 
             case Panel panel:

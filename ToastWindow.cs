@@ -75,7 +75,7 @@ public sealed class ToastWindow : Form
         _life.Interval = Math.Max(durationMs, 800);
         _life.Tick += (_, _) => { _life.Stop(); Dismiss(immediate: false); };
 
-        Click += (_, _) => Activate_();
+        Click += (_, _) => RunClickAction();
         Paint += OnPaint;
     }
 
@@ -161,7 +161,7 @@ public sealed class ToastWindow : Form
         _life.Start();
     }
 
-    private void Activate_()
+    private void RunClickAction()
     {
         var action = _onClick;
         Dismiss(immediate: true);

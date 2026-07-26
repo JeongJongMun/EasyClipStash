@@ -28,7 +28,7 @@ public sealed class NamingPanel : FlowLayoutPanel
     private readonly Label _dailyPaddingLabel = FieldLabel();
     private readonly Label _prefixLabel = FieldLabel();
     private readonly Label _suffixLabel = FieldLabel();
-    private readonly Label _previewLabel = new() { AutoSize = true, Tag = Theme.Muted_, Margin = new Padding(6, 8, 3, 3), MaximumSize = new Size(500, 0) };
+    private readonly Label _previewLabel = new() { AutoSize = true, Tag = Theme.MutedTag, Margin = new Padding(6, 8, 3, 3), MaximumSize = new Size(500, 0) };
 
     private readonly FlowLayoutPanel _startNumberRow;
     private readonly FlowLayoutPanel _numberPaddingRow;

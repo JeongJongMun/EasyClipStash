@@ -379,7 +379,7 @@ public sealed class SettingsForm : Form
 
     // ── 레이아웃 헬퍼 ──
     private static Label FieldLabel() => new() { AutoSize = false, Width = 110, TextAlign = ContentAlignment.MiddleLeft, Margin = new Padding(3, 3, 6, 3), Height = 25 };
-    private static Label HintLabel() => new() { AutoSize = true, Tag = Theme.Muted_, Margin = new Padding(6, 0, 3, 6) };
+    private static Label HintLabel() => new() { AutoSize = true, Tag = Theme.MutedTag, Margin = new Padding(6, 0, 3, 6) };
 
     /// <summary>페이지 안에서 하위 구획의 제목으로 쓰는 굵은 라벨.</summary>
     private static Label SectionLabel()
@@ -422,7 +422,7 @@ public sealed class SettingsForm : Form
     private void LoadFromConfig(AppConfig cfg)
     {
         _languageCombo.SelectedIndex = cfg.Language == Lang.Korean ? 0 : 1;
-        _savePathBox.Text = cfg.SavePath;
+        _savePathBox.Text = cfg.ImageSavePath;
         _hotkeyBox.Text = cfg.Hotkey;
         _textPathBox.Text = cfg.TextSavePath;
         _copyMarkdownCheck.Checked = cfg.CopyMarkdownToClipboard;
@@ -478,7 +478,7 @@ public sealed class SettingsForm : Form
         _namingTabButtons[1].Text = L.TabText;
 
         _languageLabel.Text = L.LanguageLabel;
-        _savePathLabel.Text = L.SaveFolderLabel;
+        _savePathLabel.Text = L.ImageSavePathLabel;
         _imageFormatLabel.Text = L.ImageFormatLabel;
         _hotkeyLabel.Text = L.HotkeyLabel;
         _hotkeyHintLabel.Text = L.HotkeyHint;
@@ -492,7 +492,7 @@ public sealed class SettingsForm : Form
         _autoCheckUpdateCheck.Text = L.AutoCheckUpdate;
         _checkUpdateButton.Text = L.CheckUpdate;
         _updateNowButton.Text = L.UpdateNow;
-        _textFolderLabel.Text = L.TextFolderLabel;
+        _textFolderLabel.Text = L.TextSavePathLabel;
         _textFolderHintLabel.Text = L.TextFolderHint;
         _textExtLabel.Text = L.TextExtLabel;
         _urlPrefixLabel.Text = L.UrlPrefixLabel;
@@ -539,7 +539,7 @@ public sealed class SettingsForm : Form
     /// <summary>현재 컨트롤 상태를 그대로 담은 설정(미리보기·저장 공용). 검증은 하지 않는다.</summary>
     private AppConfig BuildConfigFromUi() => new()
     {
-        SavePath = _savePathBox.Text.Trim(),
+        ImageSavePath = _savePathBox.Text.Trim(),
         ImageFormat = ImageFormats[_imageFormatCombo.SelectedIndex],
         Hotkey = _hotkeyBox.Text,
         Language = SelectedLanguage,
@@ -562,9 +562,9 @@ public sealed class SettingsForm : Form
             var cfg = BuildConfigFromUi();
             var now = DateTime.Now;
             _imageNaming.SetPreview(L.ImagePreview(
-                FileNamer.PreviewName(cfg.ImageNaming, cfg.SavePath, FileNamer.Extension(cfg.ImageFormat), now)));
+                FileNamer.PreviewName(cfg.ImageNaming, cfg.ImageSavePath, FileNamer.Extension(cfg.ImageFormat), now)));
             _textNaming.SetPreview(L.TextPreview(
-                FileNamer.PreviewName(cfg.TextNaming, cfg.EffectiveTextFolder, FileNamer.Extension(cfg.TextExtension), now)));
+                FileNamer.PreviewName(cfg.TextNaming, cfg.EffectiveTextSavePath, FileNamer.Extension(cfg.TextExtension), now)));
         }
         catch (Exception ex)
         {
@@ -577,10 +577,10 @@ public sealed class SettingsForm : Form
     {
         var cfg = BuildConfigFromUi();
 
-        if (cfg.SavePath.Length == 0)
+        if (cfg.ImageSavePath.Length == 0)
         {
             SelectPage(2);
-            Warn(L.EnterSaveFolder);
+            Warn(L.EnterImageSavePath);
             return;
         }
         if (!HotkeyManager.TryParse(cfg.Hotkey, out _, out _, out string error))
@@ -589,7 +589,7 @@ public sealed class SettingsForm : Form
             Warn(error);
             return;
         }
-        if (!Directory.Exists(cfg.SavePath) && !ConfirmMissingFolder(cfg.SavePath))
+        if (!Directory.Exists(cfg.ImageSavePath) && !ConfirmMissingFolder(cfg.ImageSavePath))
             return;
         if (cfg.TextSavePath.Length > 0 && !Directory.Exists(cfg.TextSavePath) && !ConfirmMissingFolder(cfg.TextSavePath))
             return;
