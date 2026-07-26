@@ -24,7 +24,7 @@ static class Program
         {
             ApplicationConfiguration.Initialize();
             InstallCrashGuards();
-            Application.Run(new TrayApplicationContext());
+            Application.Run(new TrayApplicationContext(startedByUpdate: afterUpdate));
         }
         finally
         {

@@ -30,6 +30,10 @@ public static class Updater
     public static Version CurrentVersion
         => Assembly.GetEntryAssembly()?.GetName().Version is { } v ? new Version(v.Major, v.Minor, v.Build) : new Version(0, 0, 0);
 
+    /// <summary>해당 버전의 릴리스 페이지 주소. 업데이트 후 "뭐가 바뀌었나"로 이어주는 통로.</summary>
+    public static string ReleasePageUrl(Version version)
+        => $"https://github.com/{Owner}/{Repo}/releases/tag/v{version}";
+
     /// <summary>
     /// 단일 파일로 배포된 빌드에서만 자기 교체가 가능하다.
     /// 개발 빌드는 exe와 dll이 분리돼 있어 exe만 바꾸면 깨진다.

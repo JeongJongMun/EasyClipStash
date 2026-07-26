@@ -19,7 +19,11 @@ public sealed class TrayApplicationContext : ApplicationContext
     private readonly ToolStripMenuItem _settingsItem;
     private readonly ToolStripMenuItem _exitItem;
 
-    public TrayApplicationContext()
+    /// <param name="startedByUpdate">
+    /// 자동 업데이트가 띄운 인스턴스인지. 교체를 수행한 이전 프로세스는 곧바로 종료되므로
+    /// "업데이트 완료"는 새로 뜬 이쪽에서 알린다.
+    /// </param>
+    public TrayApplicationContext(bool startedByUpdate = false)
     {
         _config = AppConfig.Load();
         L.Current = _config.Language;
@@ -72,8 +76,25 @@ public sealed class TrayApplicationContext : ApplicationContext
         ApplyConfig();
 
         Updater.CleanupPreviousUpdate();   // 지난 업데이트가 남긴 .old 파일 정리
-        if (_config.CheckUpdateOnStartup)
-            _ = CheckUpdateInBackgroundAsync();
+
+        if (startedByUpdate)
+            NotifyUpdateCompleted();
+        else if (_config.CheckUpdateOnStartup)
+            _ = CheckUpdateInBackgroundAsync();   // 방금 업데이트했다면 곧바로 다시 확인할 이유가 없다
+    }
+
+    /// <summary>업데이트로 새로 실행됐음을 알리고, 누르면 그 버전의 릴리스 페이지를 연다.</summary>
+    private void NotifyUpdateCompleted()
+    {
+        var version = Updater.CurrentVersion;
+        Notify(L.UpdateCompletedTitle, L.UpdateCompleted(version), ToolTipIcon.Info,
+            () => OpenUrl(Updater.ReleasePageUrl(version)));
+    }
+
+    private static void OpenUrl(string url)
+    {
+        try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); }
+        catch { /* 기본 브라우저가 없거나 열지 못해도 앱에는 영향이 없다 */ }
     }
 
     /// <summary>시작 시 조용히 새 버전을 확인하고, 있으면 트레이 알림만 띄운다. 실패는 무시한다.</summary>

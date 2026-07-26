@@ -131,6 +131,10 @@ public static class L
         => Ko ? "개발 빌드에서는 자동 업데이트를 쓸 수 없습니다." : "Auto-update is unavailable in development builds.";
     public static string UpdateChecksumMismatch
         => Ko ? "내려받은 파일의 체크섬이 일치하지 않습니다." : "Checksum of the downloaded file does not match.";
+    public static string UpdateCompletedTitle => Ko ? "업데이트 완료" : "Update complete";
+    public static string UpdateCompleted(Version v)
+        => Ko ? $"v{v}로 업데이트되었습니다.\n눌러서 변경 내용을 확인하세요."
+              : $"Updated to v{v}.\nClick to see what changed.";
     public static string UpdateChecksumMissing
         => Ko ? "이 릴리스에는 체크섬이 없어 자동 설치할 수 없습니다. 직접 내려받아 주세요."
               : "This release has no checksum, so it cannot be installed automatically. Please download it manually.";
