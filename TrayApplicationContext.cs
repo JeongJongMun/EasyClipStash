@@ -35,7 +35,7 @@ public sealed class TrayApplicationContext : ApplicationContext
         _copyMarkdownItem.CheckedChanged += (_, _) =>
         {
             _config.CopyMarkdownToClipboard = _copyMarkdownItem.Checked;
-            _config.Save();
+            SaveConfig();
         };
 
         _startupItem = new ToolStripMenuItem("") { CheckOnClick = true, Checked = StartupManager.IsEnabled() };
@@ -175,7 +175,7 @@ public sealed class TrayApplicationContext : ApplicationContext
             if (form.ShowDialog() == DialogResult.OK)
             {
                 _config = form.Result;
-                _config.Save();
+                SaveConfig();
             }
         }
         finally
@@ -183,6 +183,13 @@ public sealed class TrayApplicationContext : ApplicationContext
             _settingsForm = null;
             ApplyConfig(); // 저장이든 취소든 단축키를 복원/재등록한다.
         }
+    }
+
+    /// <summary>설정을 저장하고, 실패하면 조용히 넘어가지 않고 알린다.</summary>
+    private void SaveConfig()
+    {
+        if (!_config.Save())
+            Notify(L.SettingsSaveFailedTitle, L.SettingsSaveFailed(AppConfig.ConfigPath), ToolTipIcon.Warning);
     }
 
     /// <summary>

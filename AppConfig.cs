@@ -36,6 +36,10 @@ public class AppConfig
         Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() },
     };
 
+    /// <summary>
+    /// 설정을 불러온다. 어떤 이유로든 실패하면 기본값으로 시작한다.
+    /// 설정을 못 읽는 것이 앱을 못 쓰는 이유가 되어서는 안 된다.
+    /// </summary>
     public static AppConfig Load()
     {
         try
@@ -54,18 +58,41 @@ public class AppConfig
         catch (JsonException)
         {
             // 손상된 config.json은 기본값으로 대체하되, 원본은 남겨둔다.
-            var backup = ConfigPath + ".bak";
-            File.Copy(ConfigPath, backup, overwrite: true);
+            TryBackupBrokenConfig();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // 파일이 잠겼거나 읽을 권한이 없는 경우. 기본값으로 진행한다.
         }
 
         var config = new AppConfig();
-        config.Save();
+        config.Save();   // 실패해도 예외를 던지지 않는다
         return config;
     }
 
-    public void Save()
+    /// <summary>
+    /// 설정을 저장한다. 성공 여부를 돌려주고 예외를 던지지 않는다.
+    ///
+    /// 이 앱은 압축을 풀어 아무 폴더에서나 실행하므로 쓰기 권한이 없는 위치일 수 있다.
+    /// 그때 설정 저장 실패로 앱이 죽으면 안 된다.
+    /// </summary>
+    public bool Save()
     {
-        File.WriteAllText(ConfigPath, JsonSerializer.Serialize(this, JsonOptions));
+        try
+        {
+            File.WriteAllText(ConfigPath, JsonSerializer.Serialize(this, JsonOptions));
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException)
+        {
+            return false;
+        }
+    }
+
+    private static void TryBackupBrokenConfig()
+    {
+        try { File.Copy(ConfigPath, ConfigPath + ".bak", overwrite: true); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
     }
 
     /// <summary>

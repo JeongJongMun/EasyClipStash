@@ -38,10 +38,18 @@ public static class L
         => Ko ? $"{dir}에 {file} 저장 완료." : $"Saved {file} to {dir}.";
     public static string MarkdownCopied => Ko ? "마크다운 태그 복사 완료." : "Markdown tag copied.";
     public static string FolderMissingTitle => Ko ? "폴더 없음" : "Folder not found";
+    public static string SettingsSaveFailedTitle => Ko ? "설정 저장 실패" : "Could not save settings";
+    public static string SettingsSaveFailed(string path)
+        => Ko ? $"설정을 저장하지 못했습니다. 이 폴더에 쓸 권한이 있는지 확인해 주세요.\n{path}"
+              : $"Settings could not be saved. Check that this folder is writable.\n{path}";
     public static string FolderMissing(string path)
         => Ko ? $"저장 폴더가 없습니다: {path}" : $"Save folder not found: {path}";
 
     // ── 실행/공통 ──
+    public static string UnexpectedError(string detail)
+        => Ko ? $"예상하지 못한 오류가 발생했습니다. 앱은 계속 실행됩니다.\n\n{detail}"
+              : $"Something went wrong. The app will keep running.\n\n{detail}";
+
     public static string AlreadyRunning
         => Ko ? "EasyClipStash가 이미 실행 중입니다.\n트레이 아이콘을 확인하세요."
               : "EasyClipStash is already running.\nCheck the tray icon.";

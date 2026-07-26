@@ -23,11 +23,41 @@ static class Program
         try
         {
             ApplicationConfiguration.Initialize();
+            InstallCrashGuards();
             Application.Run(new TrayApplicationContext());
         }
         finally
         {
             ReleaseInstanceLock();
+        }
+    }
+
+    /// <summary>
+    /// 예상하지 못한 예외를 잡아 안내로 바꾼다.
+    /// 트레이에 상주하며 로그인 시 자동 실행되는 앱이라, 낯선 .NET 크래시 창이 뜨는 것보다
+    /// 무엇이 잘못됐는지 알려주고 계속 동작하는 편이 낫다.
+    /// </summary>
+    private static void InstallCrashGuards()
+    {
+        Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+
+        Application.ThreadException += (_, e) => ReportCrash(e.Exception);
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
+            if (e.ExceptionObject is Exception ex) ReportCrash(ex);
+        };
+    }
+
+    private static void ReportCrash(Exception ex)
+    {
+        try
+        {
+            MessageBox.Show(L.UnexpectedError(ex.Message), "EasyClipStash",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+        catch
+        {
+            // 안내조차 띄울 수 없는 상황이면 더 할 수 있는 게 없다
         }
     }
 
